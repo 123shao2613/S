@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S - 韩语学习工作台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/flower.css">
+</head>
+<body>
+  <div id="app">
+    <!-- ====== MOBILE TOPBAR ====== -->
+    <header class="topbar" id="topbar">
+      <button class="topbar-hamburger" id="topbarHamburger" aria-label="打开菜单">☰</button>
+      <span class="topbar-title" id="topbarTitle">学习仪表盘</span>
+      <button class="topbar-checkin" id="topbarCheckin" aria-label="打卡">打卡 ♡</button>
+    </header>
+
+    <!-- ====== SIDEBAR (cute style) ====== -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Cute mascot + title -->
+      <div class="logo-area">
+        <div class="logo-badge">
+          <svg viewBox="0 0 48 48" width="40" height="40">
+            <circle cx="24" cy="24" r="22" fill="#FFF5FA" stroke="#F9A8D4" stroke-width="2"/>
+            <circle cx="17" cy="20" r="3" fill="#7C5CB8"/>
+            <circle cx="31" cy="20" r="3" fill="#7C5CB8"/>
+            <circle cx="18" cy="19" r="1" fill="#FFF"/>
+            <circle cx="32" cy="19" r="1" fill="#FFF"/>
+            <path d="M17 28 Q24 34 31 28" stroke="#E879A9" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <circle cx="11" cy="27" r="2.5" fill="#FFB8D4" opacity="0.6"/>
+            <circle cx="37" cy="27" r="2.5" fill="#FFB8D4" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">韩语学习屋 ♡</span>
+          <span class="logo-sub">Seoul · Speak · Start ✿</span>
+        </div>
+      </div>
+
+      <!-- Navigation: icon + text, pill-shaped items -->
+      <nav class="nav-menu">
+        <a class="nav-item active" data-module="dashboard">
+          <span class="nav-icon-wrap color-purple">📊</span>
+          <span class="nav-label">学习仪表盘</span>
+        </a>
+        <a class="nav-item" data-module="phonics">
+          <span class="nav-icon-wrap color-pink">🔤</span>
+          <span class="nav-label">音标学习</span>
+        </a>
+        <a class="nav-item" data-module="vocabulary">
+          <span class="nav-icon-wrap color-amber">📚</span>
+          <span class="nav-label">每日单词</span>
+        </a>
+        <a class="nav-item" data-module="speaking">
+          <span class="nav-icon-wrap color-rose">🎤</span>
+          <span class="nav-label">语句跟读</span>
+        </a>
+        <a class="nav-item" data-module="dialogue">
+          <span class="nav-icon-wrap color-sky">💬</span>
+          <span class="nav-label">对话练习</span>
+        </a>
+        <a class="nav-item" data-module="drama">
+          <span class="nav-icon-wrap color-mint">🎬</span>
+          <span class="nav-label">经典台词</span>
+        </a>
+        <a class="nav-item" data-module="flower">
+          <span class="nav-icon-wrap color-pink">🌸</span>
+          <span class="nav-label">养花精灵</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="voice-settings-btn" id="voiceSettingsBtn" title="设置朗读语音（女声韩文）">🎙️ 发音设置</button>
+        <div class="streak-card" id="streakCard">
+          <div class="streak-flame">🔥</div>
+          <div class="streak-info">
+            <span class="streak-count" id="streakCount">0</span>
+            <span class="streak-label">连续打卡 ♪</span>
+          </div>
+          <button class="checkin-btn" id="checkinBtn">打卡 ♡</button>
+        </div>
+        <div class="level-progress" id="levelProgress">
+          <div class="level-bar"><div class="level-fill" id="levelFill"></div></div>
+          <span class="level-text" id="levelText">Lv.1 新手 ✿</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ====== MAIN CONTENT ====== -->
+    <main class="content">
+      <!-- Dashboard -->
+      <section class="module active" id="module-dashboard"></section>
+      <!-- Phonics -->
+      <section class="module" id="module-phonics"></section>
+      <!-- Vocabulary -->
+      <section class="module" id="module-vocabulary"></section>
+      <!-- Speaking -->
+      <section class="module" id="module-speaking"></section>
+      <!-- Dialogue -->
+      <section class="module" id="module-dialogue"></section>
+      <!-- Drama -->
+      <section class="module" id="module-drama"></section>
+      <!-- Flower Sprite -->
+      <section class="module" id="module-flower"></section>
+    </main>
+
+    <!-- Mobile sidebar backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Audio player for TTS -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/phonics.js"></script>
+  <script src="js/vocabulary.js"></script>
+  <script src="js/speaking.js"></script>
+  <script src="js/dialogue.js"></script>
+  <script src="js/drama.js"></script>
+  <script src="js/flower.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
