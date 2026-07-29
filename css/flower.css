@@ -1,0 +1,122 @@
+/* ====== FLOWER SPRITE (养花精灵) ====== */
+:root { --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1); }
+.flower-stage-card {
+  background: linear-gradient(160deg, #FFF6FB 0%, #F3F0FF 100%);
+  border: 2px dashed var(--accent-light);
+  border-radius: var(--r-lg);
+  padding: 28px 20px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.flower-bubble {
+  display: inline-block;
+  background: var(--surface);
+  border: 2px solid var(--primary-light);
+  border-radius: 18px;
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  margin: 0 auto 14px;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  animation: bubbleIn 0.4s var(--ease-bounce);
+  max-width: 90%;
+}
+.flower-bubble::after {
+  content: '';
+  position: absolute; left: 50%; bottom: -9px; transform: translateX(-50%);
+  border: 8px solid transparent; border-top-color: var(--surface);
+}
+.flower-bubble.small { font-size: 0.78rem; padding: 7px 12px; margin: 0 0 8px; animation: none; }
+.flower-bubble.small::after { display: none; }
+
+.flower-sprite {
+  display: flex; justify-content: center; align-items: flex-end;
+  position: relative; margin: 4px auto 8px;
+}
+.flower-sprite svg { filter: drop-shadow(0 6px 10px rgba(159,122,234,0.18)); }
+.flower-sprite.fed-anim { animation: spritePop 0.7s var(--ease-bounce); }
+.flower-hearts {
+  position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
+  font-size: 1.3rem; animation: floatHearts 1.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.flower-status { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+.flower-stage-pill {
+  background: var(--primary-50); color: var(--primary-dark);
+  border: 1.5px solid var(--primary-light); border-radius: 999px;
+  padding: 5px 14px; font-size: 0.82rem; font-weight: 700;
+}
+.flower-mood-pill {
+  border-radius: 999px; padding: 5px 14px; font-size: 0.82rem; font-weight: 700;
+  border: 1.5px solid transparent;
+}
+.flower-mood-pill.mood-happy { background: #E7FBEF; color: #1FA971; border-color: #9BE3BE; }
+.flower-mood-pill.mood-neutral { background: #FFF6E0; color: #C98A12; border-color: #FBE0A0; }
+.flower-mood-pill.mood-sad { background: #FDEEF2; color: #D6638B; border-color: #F7C2D4; }
+
+.hunger-wrap { max-width: 360px; margin: 0 auto; }
+.hunger-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+.hunger-bar { height: 14px; background: #F1ECF8; border-radius: 999px; overflow: hidden; border: 1px solid var(--border-light); }
+.hunger-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#F472B6,#9F7AEA); transition: width 0.6s ease; }
+.hunger-fill[style*="width:0%"], .hunger-fill[style*="width: 0%"] { background: #9BE3BE; }
+
+.flower-actions { display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 18px; }
+.flower-feed-btn { font-size: 1rem; padding: 12px 26px; }
+.flower-feed-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.flower-checked-tip { font-size: 0.85rem; color: #1FA971; font-weight: 600; }
+
+.growth-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md);
+  padding: 20px; margin-bottom: 18px;
+}
+.growth-title { font-weight: 700; margin-bottom: 22px; font-size: 0.95rem; }
+.growth-bar {
+  position: relative; height: 16px; background: var(--surface-alt);
+  border-radius: 999px; margin: 30px 0 44px;
+}
+.growth-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#FCD34D,#F472B6,#9F7AEA); transition: width 0.6s ease; }
+.growth-dot {
+  position: absolute; top: 50%; transform: translate(-50%,-50%);
+  width: 26px; height: 26px; border-radius: 50%; background: var(--surface);
+  border: 2px solid var(--accent-light); display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; box-shadow: var(--shadow-sm);
+}
+.growth-dot span { position: absolute; top: 30px; font-size: 0.68rem; white-space: nowrap; color: var(--text-muted); text-align: center; line-height: 1.2; }
+.growth-hint { font-size: 0.82rem; color: var(--text-muted); text-align: center; }
+
+.flower-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 18px; }
+.flower-stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 8px; text-align: center; }
+.fs-val { font-size: 1.5rem; font-weight: 800; color: var(--primary-dark); }
+.fs-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+.flower-tips { background: var(--primary-50); border: 1px dashed var(--primary-light); border-radius: var(--r); padding: 14px 16px; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.7; }
+
+/* dashboard widget */
+.flower-widget {
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(135deg, #FFF6FB, #F3F0FF);
+  border: 2px dashed var(--accent-light); border-radius: var(--r-md);
+  padding: 14px 16px; cursor: pointer; transition: var(--t); margin-bottom: 18px;
+}
+.flower-widget:hover { transform: translateY(-3px) rotate(-0.5deg); box-shadow: var(--shadow-md); }
+.flower-widget-left { flex: 0 0 auto; }
+.flower-mini { width: 96px; height: 100px; display: flex; align-items: flex-end; justify-content: center; }
+.flower-mini svg { animation: spriteBob 3s ease-in-out infinite; }
+.flower-widget-right { flex: 1; min-width: 0; }
+.flower-widget-title { font-weight: 700; font-size: 0.92rem; color: var(--primary-dark); margin-bottom: 4px; }
+.flower-widget-meta { font-size: 0.76rem; color: var(--text-muted); margin-top: 6px; }
+.flower-widget-go { font-size: 1.6rem; color: var(--primary-light); font-weight: 700; }
+
+@keyframes bubbleIn { from { transform: scale(0.7) translateY(8px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+@keyframes spritePop { 0% { transform: scale(1); } 35% { transform: scale(1.18) rotate(-4deg); } 65% { transform: scale(0.95) rotate(3deg); } 100% { transform: scale(1); } }
+@keyframes floatHearts { 0% { transform: translateX(-50%) translateY(0); opacity: 0.9; } 50% { transform: translateX(-50%) translateY(-12px); opacity: 1; } 100% { transform: translateX(-50%) translateY(-24px); opacity: 0; } }
+@keyframes spriteBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+@media (max-width: 600px) {
+  .flower-stats { grid-template-columns: repeat(2,1fr); }
+}
