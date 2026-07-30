@@ -30,7 +30,9 @@ const S_APP = {
       this.bindNav();
       this.bindCheckin();
       this.bindVoiceSettings();
+      this.bindHelpBtn();
       this.bindMobile();
+      this._maybeShowGuide();
       this.updateStreakUI();
       this.updateLevelUI();
 
@@ -82,12 +84,20 @@ const S_APP = {
       const all = speechSynthesis.getVoices();
       if (!all || !all.length) return;
       this.state.ttsVoices = all;
+      const hasKo = all.some(v => (v.lang || '').toLowerCase().startsWith('ko'));
+      this.state.ttsHasKorean = hasKo;
       const saved = this.storage.get('ttsVoiceURI', null);
       if (saved && all.some(x => x.voiceURI === saved)) {
         apply(saved);
-      } else {
+      } else if (hasKo) {
         apply(null); // auto female-korean
         this.storage.set('ttsVoiceURI', this.state.ttsVoiceURI);
+      } else if (all[0]) {
+        // 没有韩文语音：仍选一个默认语音，保证至少能出声（发音会不准），并提示用户安装韩文语音包
+        this.state.ttsVoice = all[0];
+        this.state.ttsVoiceURI = all[0].voiceURI;
+        this.state.ttsReady = true;
+        this.storage.set('ttsVoiceURI', all[0].voiceURI);
       }
     };
 
@@ -124,7 +134,7 @@ const S_APP = {
     const voices = this.getVoiceList();
     const cur = this.state.ttsVoiceURI;
     if (!voices.length) {
-      this.toast('未检测到系统语音，请先安装韩文语音包', 'warning');
+      this.toast('未检测到任何系统语音。Windows：设置 → 时间和语言 → 语音 → 管理语音 → 勾选“韩语”并安装；macOS：系统设置 → 辅助功能 → 语音 → 下载韩语。安装后刷新页面。', 'warning', 6000);
       return;
     }
     const options = voices.map(v => {
@@ -170,6 +180,9 @@ const S_APP = {
       document.getElementById('voicePreview').addEventListener('click', () => {
         if (this.setVoiceByURI(sel.value)) {
           this.storage.set('ttsRate', parseFloat(rate.value));
+          if (!this.state.ttsHasKorean) {
+            this.toast('（当前无韩文语音，使用默认语音试听，发音会不准；请按上方提示安装韩文语音包）', 'warning');
+          }
           this.speak('안녕하세요, 반갑습니다. 오늘도 화이팅이에요!', { rate: parseFloat(rate.value) });
         }
       });
@@ -190,11 +203,30 @@ const S_APP = {
       this._showTTSUnsupported();
       return;
     }
-    speechSynthesis.cancel();
+    const synth = window.speechSynthesis;
+    synth.cancel();
+
+    const all = this.state.ttsVoices || (synth.getVoices() || []);
+    // 已选语音若不是韩文、但系统里有韩文语音，则改用韩文（发音更标准）
+    let voice = this.state.ttsVoice;
+    if (voice && !(voice.lang || '').toLowerCase().startsWith('ko')) {
+      const koVoice = all.find(v => (v.lang || '').toLowerCase().startsWith('ko'));
+      if (koVoice) voice = koVoice;
+    }
+    // 仍为空则兜底：优先韩文，否则用第一个可用语音，保证至少能出声
+    if (!voice) voice = all.find(v => (v.lang || '').toLowerCase().startsWith('ko')) || all[0] || null;
+    if (voice) {
+      this.state.ttsVoice = voice;
+      this.state.ttsVoiceURI = voice.voiceURI;
+    }
 
     const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = 'ko-KR';
-    if (this.state.ttsVoice) utter.voice = this.state.ttsVoice;
+    if (voice) {
+      utter.voice = voice;
+      utter.lang = voice.lang || 'ko-KR';
+    } else {
+      utter.lang = 'ko-KR';
+    }
     utter.rate = opts.rate || this.storage.get('ttsRate', 0.85);
     utter.pitch = opts.pitch || 1.15;
     utter.volume = opts.volume || 1.0;
@@ -203,7 +235,16 @@ const S_APP = {
     if (opts.onEnd) utter.onend = opts.onEnd;
     if (opts.onError) utter.onerror = opts.onError;
 
-    speechSynthesis.speak(utter);
+    // 朗读失败（多为系统缺对应语言语音包）时给出明确提示
+    utter.onerror = (e) => {
+      this.toast('朗读失败：' + (e.error || '未知错误') + '。请打开 🎙️ 发音设置检查/安装韩文语音包', 'error');
+    };
+
+    // 保留引用，避免被 GC 回收导致朗读中途中断（Chromium 已知问题）
+    this.state._currentUtter = utter;
+    synth.speak(utter);
+    // Edge/Chrome 在 cancel 后偶尔进入 paused 状态，唤醒一下以免静音
+    try { if (synth.paused) synth.resume(); } catch (e) {}
   },
 
   stopSpeak() {
@@ -336,6 +377,68 @@ const S_APP = {
     const btn = document.getElementById('voiceSettingsBtn');
     if (btn) {
       btn.addEventListener('click', () => this.openVoiceSettings());
+    }
+  },
+
+  bindHelpBtn() {
+    const btn = document.getElementById('helpBtn');
+    if (btn) {
+      btn.addEventListener('click', () => this.showGuide());
+    }
+  },
+
+  // Show the first-run / on-demand illustrated guide (install-as-app + voice).
+  showGuide() {
+    const body = `
+      <div class="guide">
+        <div class="guide-hero">🌸 欢迎来到韩语学习屋</div>
+        <p class="guide-sub">三步上手，手机也能当 App 用</p>
+
+        <div class="guide-step">
+          <div class="guide-step-icon">📲</div>
+          <div class="guide-step-body">
+            <div class="guide-step-title">第 1 步 · 安装成 App（手机推荐）</div>
+            <ol class="guide-ol">
+              <li>用 <b>Chrome</b> 浏览器打开本网址（华为自带浏览器 / 微信内打开会缺少语音）</li>
+              <li>点右上角 <b>⋮ 菜单 → 添加到主屏幕</b></li>
+              <li>桌面出现「S韩语」图标，点开即全屏运行</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-step-icon">🔊</div>
+          <div class="guide-step-body">
+            <div class="guide-step-title">第 2 步 · 开启韩语朗读</div>
+            <ol class="guide-ol">
+              <li>朗读依赖浏览器语音合成，<b>Chrome / Edge 自带支持</b></li>
+              <li>若点击 🔊 没声音：点左下「🎙️ 发音设置」</li>
+              <li>按提示安装<b>韩文语音包</b>，选「韩文女声」后刷新即可</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-step-icon">🌸</div>
+          <div class="guide-step-body">
+            <div class="guide-step-title">第 3 步 · 每天打卡养花精灵</div>
+            <p class="guide-p">每天来打卡领花蜜喂精灵，完成的任务越多花蜜越多，精灵会从蛋 → 幼年 → 成年慢慢长大哦！</p>
+          </div>
+        </div>
+
+        <button class="guide-start" id="guideStartBtn">开始学习 ✿</button>
+      </div>`;
+    this.openModal('📖 新手引导', body, (bodyEl) => {
+      const start = bodyEl.querySelector('#guideStartBtn');
+      if (start) start.addEventListener('click', () => this.closeModal());
+    });
+    this.storage.set('guideSeen', 1);
+  },
+
+  // Auto-show the guide on the very first visit only.
+  _maybeShowGuide() {
+    if (!this.storage.get('guideSeen', 0)) {
+      setTimeout(() => { if (!this.storage.get('guideSeen', 0)) this.showGuide(); }, 700);
     }
   },
 
@@ -661,7 +764,7 @@ const S_APP = {
   },
 
   // ====== TOAST ======
-  toast(msg, type = 'info') {
+  toast(msg, type = 'info', duration = 3000) {
     const container = document.getElementById('toastContainer');
     if (!container) return;
     const t = document.createElement('div');
@@ -673,7 +776,7 @@ const S_APP = {
       t.style.transform = 'translateX(100%)';
       t.style.transition = 'all 0.3s ease';
       setTimeout(() => t.remove(), 300);
-    }, 3000);
+    }, duration);
   },
 
   // ====== MOUTH SVG GENERATOR ======
