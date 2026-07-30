@@ -1790,3 +1790,28 @@ body::after {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* ====== TTS unsupported notice ====== */
+.tts-unsupported {
+  position: fixed;
+  left: 12px; right: 12px; top: 12px; z-index: 1000;
+  display: flex; align-items: flex-start; gap: 8px;
+  background: linear-gradient(135deg, #fff3cd, #ffe8a3);
+  border: 2px dashed #f0a93c;
+  border-radius: var(--r-md, 16px);
+  padding: 10px 12px;
+  box-shadow: 0 8px 24px rgba(240, 169, 60, 0.35);
+  transform: translateY(-140%);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tts-unsupported.show { transform: translateY(0); }
+.tts-unsupported-text { flex: 1; font-size: 0.8rem; color: #8a5a00; line-height: 1.5; }
+.tts-unsupported-text b { color: #c2410c; }
+.tts-unsupported-close {
+  flex: none; width: 26px; height: 26px; border-radius: 50%;
+  border: none; background: rgba(255,255,255,0.7); color: #8a5a00;
+  font-size: 1rem; line-height: 1; cursor: pointer;
+}
+@media (max-width: 768px) {
+  .tts-unsupported { top: 64px; }
+}
