@@ -99,6 +99,8 @@ const S_APP = {
         this.state.ttsReady = true;
         this.storage.set('ttsVoiceURI', all[0].voiceURI);
       }
+      // 未检测到韩文语音：主动提示用户安装韩文语音包（一键查看方法）
+      if (!hasKo) this._showKoreanVoiceTip();
     };
 
     loadVoices();
@@ -278,6 +280,33 @@ const S_APP = {
     banner.querySelector('.tts-unsupported-close').addEventListener('click', close);
     document.body.appendChild(banner);
     setTimeout(() => { const el = document.getElementById(id); if (el) el.classList.add('show'); }, 50);
+  },
+
+  // Proactively notify when the browser supports speech synthesis but has no
+  // Korean voice pack installed. Offers a one-click "how to install" guide.
+  _showKoreanVoiceTip() {
+    if (this.storage.get('koVoiceTipDismissed')) return;
+    if (document.getElementById('koVoiceBanner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'koVoiceBanner';
+    banner.className = 'ko-voice-tip';
+    banner.innerHTML = `
+      <div class="ko-voice-tip-text">
+        🇰🇷 未检测到<b>韩文语音包</b>。当前朗读韩语会发音不准。点下方按钮查看<b>安装方法</b>（Windows / macOS），装好后刷新页面即可听到标准韩文女声。
+      </div>
+      <div class="ko-voice-tip-actions">
+        <button class="ko-voice-tip-btn" id="koVoiceHowBtn">查看安装方法</button>
+        <button class="ko-voice-tip-close" aria-label="关闭">×</button>
+      </div>`;
+    document.body.appendChild(banner);
+    banner.querySelector('#koVoiceHowBtn').addEventListener('click', () => {
+      this.openVoiceSettings();
+    });
+    banner.querySelector('.ko-voice-tip-close').addEventListener('click', () => {
+      banner.remove();
+      this.storage.set('koVoiceTipDismissed', 1);
+    });
+    setTimeout(() => { const el = document.getElementById('koVoiceBanner'); if (el) el.classList.add('show'); }, 60);
   },
 
   // ====== NAVIGATION ======
