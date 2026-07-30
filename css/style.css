@@ -1764,3 +1764,29 @@ body::after {
   padding: 8px 12px; border-radius: var(--r-sm); margin: 8px 0; line-height: 1.5;
 }
 .extract-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+
+/* ====== Install hint banner (mobile) ====== */
+.install-hint {
+  display: none;
+  position: fixed;
+  left: 12px; right: 12px; bottom: 12px;
+  z-index: 999;
+  align-items: center; gap: 10px;
+  background: linear-gradient(135deg, #ffd9ea, #ffe9f3);
+  border: 2px dashed var(--pink, #ff8fb3);
+  border-radius: var(--r-md, 16px);
+  padding: 10px 12px;
+  box-shadow: 0 8px 24px rgba(255, 143, 179, 0.35);
+  animation: hintPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.install-hint.show { display: flex; }
+.install-hint-text { flex: 1; font-size: 0.82rem; color: #b3406a; line-height: 1.4; }
+.install-hint-close {
+  flex: none; width: 28px; height: 28px; border-radius: 50%;
+  border: none; background: rgba(255,255,255,0.7); color: #b3406a;
+  font-size: 0.9rem; cursor: pointer;
+}
+@keyframes hintPop {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
