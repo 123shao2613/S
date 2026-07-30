@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>S - 韩语学习工作台</title>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#ff8fb3">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="./icon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -115,6 +121,12 @@
   <!-- Toast notification -->
   <div class="toast-container" id="toastContainer"></div>
 
+  <!-- Install hint (mobile only) -->
+  <div class="install-hint" id="installHint">
+    <span class="install-hint-text">📲 想当 APP 用？点浏览器右上角菜单 →「添加到主屏幕」，即可安装到桌面</span>
+    <button class="install-hint-close" id="installHintClose" aria-label="关闭">✕</button>
+  </div>
+
   <!-- Audio player for TTS -->
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
@@ -125,5 +137,27 @@
   <script src="js/drama.js"></script>
   <script src="js/flower.js"></script>
   <script src="js/dashboard.js"></script>
+  <script>
+    // 注册 Service Worker → 离线可用 / APP 化
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {});
+      });
+    }
+    // 安装提示横幅：仅手机端且未关闭过才显示
+    (function () {
+      var hint = document.getElementById('installHint');
+      var close = document.getElementById('installHintClose');
+      if (!hint || !close) return;
+      var closed = false;
+      try { closed = localStorage.getItem('s_install_hint_closed') === '1'; } catch (e) {}
+      var isMobile = window.matchMedia('(max-width: 768px)').matches || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+      if (isMobile && !closed) hint.classList.add('show');
+      close.addEventListener('click', function () {
+        hint.classList.remove('show');
+        try { localStorage.setItem('s_install_hint_closed', '1'); } catch (e) {}
+      });
+    })();
+  </script>
 </body>
 </html>
