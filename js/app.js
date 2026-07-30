@@ -187,7 +187,7 @@ const S_APP = {
 
   speak(text, opts = {}) {
     if (!('speechSynthesis' in window)) {
-      this.toast('当前浏览器不支持语音播放', 'warning');
+      this._showTTSUnsupported();
       return;
     }
     speechSynthesis.cancel();
@@ -208,6 +208,35 @@ const S_APP = {
 
   stopSpeak() {
     if ('speechSynthesis' in window) speechSynthesis.cancel();
+  },
+
+  // Show an instructive notice when the browser lacks the Web Speech API
+  // (e.g. Huawei's built-in browser, WeChat/QQ in-app webview, some PWA
+  // containers). The real fix is to open the site in Chrome or Edge.
+  _showTTSUnsupported() {
+    if (this.storage.get('ttsUnsupportedDismissed')) {
+      this.toast('请用 Chrome / Edge 打开本页面才能朗读韩语', 'warning');
+      return;
+    }
+    const id = 'ttsUnsupportedBanner';
+    if (document.getElementById(id)) return;
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const banner = document.createElement('div');
+    banner.id = id;
+    banner.className = 'tts-unsupported';
+    banner.innerHTML = `
+      <div class="tts-unsupported-text">
+        🔇 当前浏览器不支持语音朗读（缺少 Web Speech API）。<b>请用 Chrome 或 Edge 打开本页面</b>即可正常朗读韩语。
+        ${isMobile ? '手机：用 Chrome 打开网址 → 菜单「添加到主屏幕」即可当 App 使用。' : '若已用 Chrome/Edge 仍无声，请点右上角 🎙️ 安装韩文语音包。'}
+      </div>
+      <button class="tts-unsupported-close" aria-label="关闭">×</button>`;
+    const close = () => {
+      banner.remove();
+      this.storage.set('ttsUnsupportedDismissed', 1);
+    };
+    banner.querySelector('.tts-unsupported-close').addEventListener('click', close);
+    document.body.appendChild(banner);
+    setTimeout(() => { const el = document.getElementById(id); if (el) el.classList.add('show'); }, 50);
   },
 
   // ====== NAVIGATION ======
